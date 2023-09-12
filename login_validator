@@ -1,0 +1,79 @@
+class LoginValidator {
+  final String label;
+  final List<Function(String)> validators;
+  final Map<Function(String), String> errorMessages;
+
+  LoginValidator._({
+    required this.label,
+    required this.validators,
+    required this.errorMessages,
+  });
+
+  factory LoginValidator.build(
+      String label, List<Function(String)> validators, Map<Function(String), String> errorMessages) {
+    return LoginValidator._(
+      label: label,
+      validators: validators,
+      errorMessages: errorMessages,
+    );
+  }
+
+  ValidationResult validate(String value) {
+    for (final validator in validators) {
+      if (!validator(value)) {
+        final errorMessage = errorMessages[validator] ?? 'Invalid ${label.toLowerCase()}';
+        return ValidationResult(false, errorMessage);
+      }
+    }
+    return ValidationResult(true, null);
+  }
+}
+
+class ValidationResult {
+  final bool isValid;
+  final String? errorMessage;
+
+  ValidationResult(this.isValid, this.errorMessage);
+}
+
+void main() {
+  final usernameValidator = LoginValidator.build(
+    "Username",
+    [
+      (value) => value.isNotEmpty,
+    ],
+    {
+      (value) => value.isNotEmpty: 'Username cannot be empty',
+    },
+  );
+
+  final passwordValidator = LoginValidator.build(
+    "Password",
+    [
+      (value) => value.isNotEmpty,
+      (value) => value.length >= 6,
+    ],
+    {
+      (value) => value.isNotEmpty: 'Password cannot be empty',
+      (value) => value.length < 6: 'Password must be at least 6 characters',
+    },
+  );
+
+  // Sample user input
+  final userInput = {
+    'Username': 'user123',
+    'Password': '',
+  };
+
+  // Validate user input and display error messages
+  userInput.forEach((key, value) {
+    final validator = key == 'Username' ? usernameValidator : passwordValidator;
+    final result = validator.validate(value);
+
+    if (!result.isValid) {
+      print('$key is invalid: ${result.errorMessage}');
+    } else {
+      print('$key is valid');
+    }
+  });
+}
