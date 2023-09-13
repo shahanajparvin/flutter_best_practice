@@ -1,0 +1,117 @@
+import 'package:binate_attendance_management_frontend/presentation/attendance_entry/widgets/widget.dart';
+
+class ConfirmationDialogHandler{
+  
+  Future<void> showConfirmationDialog(BuildContext context) async {
+    await ConfirmationDialogBuilder()
+        .withTitle('Delete Item')
+        .withMessage('Are you sure you want to delete this item?')
+        .withConfirmButtonText('Delete')
+        .onConfirm(() {
+             // Delete item logic goes here
+         })
+        .withCancelButtonText('Cancel')
+        .onCancel(() {})
+        .show(context);
+  }
+
+}
+
+class ConfirmationDialog extends StatelessWidget {
+  final String title;
+  final String message;
+  final String confirmButtonText;
+  final String cancelButtonText;
+  final Function() onConfirm;
+  final Function() onCancel;
+
+  ConfirmationDialog({
+    required this.title,
+    required this.message,
+    required this.confirmButtonText,
+    required this.cancelButtonText,
+    required this.onConfirm,
+    required this.onCancel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(title),
+      content: Text(message),
+      actions: <Widget>[
+        TextButton(
+          onPressed: onCancel,
+          child: Text(cancelButtonText),
+        ),
+        ElevatedButton(
+          onPressed: onConfirm,
+          child: Text(confirmButtonText),
+        ),
+      ],
+    );
+  }
+}
+
+class ConfirmationDialogBuilder {
+  String _title = 'Confirm';
+  String _message = 'Are you sure?';
+  String _confirmButtonText = 'Confirm';
+  String _cancelButtonText = 'Cancel';
+  Function()? _onConfirm;
+  Function()? _onCancel;
+
+  ConfirmationDialogBuilder withTitle(String title) {
+    _title = title;
+    return this;
+  }
+
+  ConfirmationDialogBuilder withMessage(String message) {
+    _message = message;
+    return this;
+  }
+
+  ConfirmationDialogBuilder withConfirmButtonText(String buttonText) {
+    _confirmButtonText = buttonText;
+    return this;
+  }
+
+  ConfirmationDialogBuilder withCancelButtonText(String buttonText) {
+    _cancelButtonText = buttonText;
+    return this;
+  }
+
+  ConfirmationDialogBuilder onConfirm(Function() onConfirm) {
+    _onConfirm = onConfirm;
+    return this;
+  }
+
+  ConfirmationDialogBuilder onCancel(Function() onCancel) {
+    _onCancel = onCancel;
+    return this;
+  }
+
+  Future<void> show(BuildContext context) async {
+    final dialog = ConfirmationDialog(
+      title: _title,
+      message: _message,
+      confirmButtonText: _confirmButtonText,
+      cancelButtonText: _cancelButtonText,
+      onConfirm: () {
+        _onConfirm?.call();
+        Navigator.of(context).pop(); // Close the dialog
+      },
+      onCancel: () {
+        _onCancel?.call();
+        Navigator.of(context).pop(); // Close the dialog
+      },
+    );
+
+    await showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return dialog;
+      },
+    );
+  }
+}
